@@ -6,7 +6,14 @@ import { CommonModule } from '@angular/common';
   selector: 'app-product-list',
   standalone: true,
   imports: [CommonModule],
-  template: `<h2>Funcionou!</h2>`,
+  template: `
+    <h2>Produtos</h2>
+    <ul>
+      <li *ngFor="let product of products">
+        <strong>{{ product.name }}</strong> – R$ {{ product.price }}
+      </li>
+    </ul>
+  `,
 })
 export class ProductListComponent implements OnInit {
   products: any[] = [];
