@@ -1,11 +1,13 @@
 package com.cesar.controller;
 
+import com.cesar.dto.ProductRequestDTO;
 import com.cesar.dto.ProductResponseDTO;
 import com.cesar.model.Product;
 import com.cesar.model.ProductDiscount;
 import com.cesar.repository.ProductDiscountRepository;
 import com.cesar.service.ProductService;
 import com.cesar.util.ProductConverter;
+import com.github.fge.jsonpatch.JsonPatch;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,16 +55,24 @@ public class ProductController {
 
     // POST /products – Criação
     @PostMapping
-    public ResponseEntity<Product> criar(@Valid @RequestBody Product produto) {
-        Product criado = service.salvar(produto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criado);
+    public ResponseEntity<Product> criar(@RequestBody @Valid ProductRequestDTO dto) {
+        Product produto = new Product();
+        produto.setName(dto.getName());
+        produto.setDescription(dto.getDescription());
+        produto.setPrice(dto.getPrice());
+        produto.setStock(dto.getStock());
+        return ResponseEntity.ok(service.salvar(produto));
     }
 
     // PATCH /products/{id} – Atualização parcial
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> patch(@PathVariable Long id, @RequestBody String patch) {
-        // Placeholder: vamos implementar com JSON Patch depois
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> atualizar(@PathVariable Long id, @RequestBody @Valid ProductRequestDTO dto) {
+        Product atualizacao = new Product();
+        atualizacao.setName(dto.getName());
+        atualizacao.setDescription(dto.getDescription());
+        atualizacao.setPrice(dto.getPrice());
+        atualizacao.setStock(dto.getStock());
+        return ResponseEntity.ok(service.atualizar(id, atualizacao));
     }
 
     // DELETE /products/{id} – Inativa produto
@@ -123,5 +133,22 @@ public class ProductController {
 
         return ResponseEntity.ok(dtoPage);
     }
+    @PatchMapping("/{id}")
+    public ResponseEntity<Product> patchProduto(
+            @PathVariable Long id,
+            @RequestBody JsonPatch patch
+    ) {
+        try {
+            Product produtoOriginal = service.buscarPorId(id)
+                    .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+            Product produtoAlterado = service.aplicarPatch(produtoOriginal, patch);
+            return ResponseEntity.ok(service.atualizar(id, produtoAlterado));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 }

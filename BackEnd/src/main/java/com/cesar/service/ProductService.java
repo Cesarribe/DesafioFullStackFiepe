@@ -4,6 +4,9 @@ import com.cesar.model.*;
 import com.cesar.repository.CouponRepository;
 import com.cesar.repository.ProductDiscountRepository;
 import com.cesar.repository.ProductRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -26,6 +29,9 @@ public class ProductService {
 
     @Autowired
     private ProductDiscountRepository discountRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public List<Product> listarTodos() {
         return repository.findAll();
@@ -190,6 +196,15 @@ public class ProductService {
         int end = Math.min(start + pageable.getPageSize(), filtrados.size());
 
         return new PageImpl<>(filtrados.subList(start, end), pageable, filtrados.size());
+    }
+    public Product aplicarPatch(Product produtoOriginal, JsonPatch patch) {
+        try {
+            JsonNode produtoNode = objectMapper.valueToTree(produtoOriginal);
+            JsonNode patchedNode = patch.apply(produtoNode);
+            return objectMapper.treeToValue(patchedNode, Product.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao aplicar JSON Patch: " + e.getMessage());
+        }
     }
 
 }
