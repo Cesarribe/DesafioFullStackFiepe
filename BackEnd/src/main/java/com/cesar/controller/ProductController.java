@@ -115,7 +115,8 @@ public class ProductController {
         service.removerDesconto(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping
+    // GET /products/filter – Listagem com filtros
+    @GetMapping("/filter")
     public ResponseEntity<Page<ProductResponseDTO>> listarComFiltros(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
