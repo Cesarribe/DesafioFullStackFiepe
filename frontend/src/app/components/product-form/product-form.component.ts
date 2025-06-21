@@ -12,12 +12,18 @@ import { FormsModule } from '@angular/forms';
 export class ProductFormComponent {
   product = {
     name: '',
+    category: '',
+    description: '',
     price: null,
-    imageUrl: ''
+    stock: null
   };
 
   salvarProduto(): void {
-    console.log('Enviando produto:', this.product);
-    // Aqui vamos fazer o POST /api/v1/products em breve
+    console.log('Produto a ser salvo:', this.product);
+  }
+
+  cancelar(): void {
+    console.log('Cadastro cancelado');
   }
 }
+

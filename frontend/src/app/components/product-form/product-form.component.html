@@ -1,20 +1,51 @@
-<div class="formulario">
-  <h2>Criar novo produto</h2>
+<div class="container">
+  <div class="topbar">
+    <h1>Cadastro de Produto</h1>
+  </div>
 
-  <label>
-    Nome:
-    <input type="text" [(ngModel)]="product.name" />
-  </label>
+  <div class="main">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="#">Dashboard</a></li>
+          <li><a href="#">Produtos</a></li>
+          <li><a href="#">Categorias</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-  <label>
-    Preço:
-    <input type="number" [(ngModel)]="product.price" />
-  </label>
+    <section class="content">
+      <form (ngSubmit)="salvarProduto()" class="formulario">
+        <label>
+          Nome:
+          <input type="text" [(ngModel)]="product.name" name="name" required />
+        </label>
 
-  <label>
-    Imagem (URL):
-    <input type="text" [(ngModel)]="product.imageUrl" />
-  </label>
+        <label>
+          Categoria:
+          <input type="text" [(ngModel)]="product.category" name="category" />
+        </label>
 
-  <button (click)="salvarProduto()">Salvar</button>
+        <label>
+          Descrição:
+          <textarea [(ngModel)]="product.description" name="description"></textarea>
+        </label>
+
+        <label>
+          Preço:
+          <input type="number" [(ngModel)]="product.price" name="price" required />
+        </label>
+
+        <label>
+          Estoque:
+          <input type="number" [(ngModel)]="product.stock" name="stock" />
+        </label>
+
+        <div class="botoes">
+          <button type="button" (click)="cancelar()">Cancelar</button>
+          <button type="submit">Cadastrar</button>
+        </div>
+      </form>
+    </section>
+  </div>
 </div>
