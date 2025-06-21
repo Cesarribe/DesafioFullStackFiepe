@@ -1,19 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-
 @Component({
   selector: 'app-product-list',
   standalone: true,
   imports: [CommonModule],
   template: `
     <h2>Produtos</h2>
-    <ul>
-      <li *ngFor="let product of products">
-        <strong>{{ product.name }}</strong> – R$ {{ product.price }}
-      </li>
-    </ul>
+    <div class="product-grid">
+      <div *ngFor="let product of products" class="product-card">
+        <img [src]="product.imageUrl" [alt]="product.name" />
+        <h3>{{ product.name }}</h3>
+        <p>R$ {{ product.price }}</p>
+      </div>
+    </div>
   `,
+  styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
   products: any[] = [];
