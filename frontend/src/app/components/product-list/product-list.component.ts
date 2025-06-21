@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  styleUrls: ['./product-list.component.css']
+  styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
   products: any[] = [];

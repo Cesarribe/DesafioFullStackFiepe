@@ -1,6 +1,43 @@
-<h2>Lista de Produtos</h2>
-<ul>
-  <li *ngFor="let product of products">
-    <strong>{{ product.name }}</strong> - R$ {{ product.price.toFixed(2) }}
-  </li>
-</ul>
+<div class="container">
+  <!-- Barra superior -->
+  <header class="topbar">
+    <h1>Produtos</h1>
+  </header>
+
+  <div class="main">
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+      <!-- Aqui podem ir links de navegação ou filtros extras -->
+      <nav>
+        <p>Menu</p>
+        <!-- icones ou botões -->
+      </nav>
+    </aside>
+
+    <!-- Conteúdo da página -->
+    <section class="content">
+      <!-- Filtros -->
+      <div class="filtros">
+        <div class="grupo filtros-produto">
+          <button>Todos</button>
+          <button>Com desconto</button>
+          <button>Inativos</button>
+          
+        </div>
+
+        <div class="grupo filtros-preco">
+          <input type="number" placeholder="Preço mín." [(ngModel)]="filtros.minPrice" name="minPrice">
+          <input type="number" placeholder="Preço máx." [(ngModel)]="filtros.maxPrice" name="maxPrice">
+        </div>
+
+        <div class="grupo busca">
+          <input type="text" placeholder="Buscar produto..." [(ngModel)]="filtros.search" name="search">
+          <button (click)="aplicarFiltros()">Buscar</button>
+        </div>
+      </div>
+      <div class="tabela">
+        <p>🧪 Em breve: Aqui aparece a tabela de produtos</p>
+      </div>
+    </section>
+  </div>
+</div>
