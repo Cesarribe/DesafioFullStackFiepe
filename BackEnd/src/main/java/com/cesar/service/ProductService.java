@@ -170,33 +170,68 @@ public class ProductService {
 
         discountRepository.deleteByProduct(produto);
     }
-    public Page<Product> listarComFiltros(int page, int size, String sortField,
-                                          boolean withDiscount, boolean includeInactive, boolean includeOutOfStock) {
+    public Page<Product> listarComFiltros(
+            int page, int limit,
+            String search,
+            Double minPrice, Double maxPrice,
+            Boolean hasDiscount,
+            Boolean includeDeleted,
+            Boolean onlyOutOfStock,
+            Boolean withCouponApplied,
+            String sortBy, String sortOrder
+    ) {
+        int pageIndex = Math.max(0, page - 1);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortField));
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(pageIndex, limit, Sort.by(direction, sortBy));
 
-        List<Product> todos = repository.findAll(); // ou um método com filtro mais específico
+        List<Product> todos = repository.findAll();
         Stream<Product> stream = todos.stream();
 
-        if (!includeInactive) {
+        if (Boolean.FALSE.equals(includeDeleted)) {
             stream = stream.filter(p -> !p.isDeleted());
         }
 
-        if (!includeOutOfStock) {
-            stream = stream.filter(p -> p.getStock() > 0);
+        if (Boolean.TRUE.equals(onlyOutOfStock)) {
+            stream = stream.filter(p -> p.getStock() == 0);
         }
 
-        if (withDiscount) {
+        if (Boolean.TRUE.equals(hasDiscount)) {
             stream = stream.filter(p -> discountRepository.existsByProduct(p));
         }
 
-        List<Product> filtrados = stream.toList();
+        if (search != null && !search.trim().isEmpty()) {
+            String termo = search.trim().toLowerCase();
+            stream = stream.filter(p ->
+                    p.getName().toLowerCase().contains(termo)
+                            || p.getDescription().toLowerCase().contains(termo)
+            );
+        }
 
+        if (minPrice != null) {
+            stream = stream.filter(p -> p.getPrice().compareTo(BigDecimal.valueOf(minPrice)) >= 0);
+        }
+
+        if (maxPrice != null) {
+            stream = stream.filter(p -> p.getPrice().compareTo(BigDecimal.valueOf(maxPrice)) <= 0);
+        }
+
+        if (Boolean.TRUE.equals(withCouponApplied)) {
+            stream = stream.filter(p ->
+                    discountRepository.findByProduct(p)
+                            .map(desc -> desc.getDiscountType() == DiscountType.COUPON)
+                            .orElse(false)
+            );
+        }
+
+        List<Product> filtrados = stream.toList();
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filtrados.size());
+        List<Product> sublista = start > filtrados.size() ? List.of() : filtrados.subList(start, end);
 
-        return new PageImpl<>(filtrados.subList(start, end), pageable, filtrados.size());
+        return new PageImpl<>(sublista, pageable, filtrados.size());
     }
+
     public Product aplicarPatch(Product produtoOriginal, JsonPatch patch) {
         try {
             JsonNode produtoNode = objectMapper.valueToTree(produtoOriginal);
