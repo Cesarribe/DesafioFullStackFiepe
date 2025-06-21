@@ -1,0 +1,20 @@
+<div class="formulario">
+  <h2>Criar novo produto</h2>
+
+  <label>
+    Nome:
+    <input type="text" [(ngModel)]="product.name" />
+  </label>
+
+  <label>
+    Preço:
+    <input type="number" [(ngModel)]="product.price" />
+  </label>
+
+  <label>
+    Imagem (URL):
+    <input type="text" [(ngModel)]="product.imageUrl" />
+  </label>
+
+  <button (click)="salvarProduto()">Salvar</button>
+</div>

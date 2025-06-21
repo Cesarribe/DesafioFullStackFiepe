@@ -17,24 +17,39 @@
         </div>
 
         <div class="filtros-preco">
-          <input type="number" [(ngModel)]="filtros.minPrice" placeholder="Preço mín." />
-          <input type="number" [(ngModel)]="filtros.maxPrice" placeholder="Preço máx." />
+          <input
+            type="number"
+            [(ngModel)]="filtros.minPrice"
+            placeholder="Preço mín."
+          />
+          <input
+            type="number"
+            [(ngModel)]="filtros.maxPrice"
+            placeholder="Preço máx."
+          />
         </div>
 
-        <div class="busca">
-          <input type="text" [(ngModel)]="filtros.search" placeholder="Buscar produto..." />
-          <button (click)="aplicarFiltros()">Buscar</button>
-        </div>
-      </div>
+ <div class="busca">
+  <div class="busca-input">
+    <input
+      type="text"
+      [(ngModel)]="filtros.search"
+      placeholder="Buscar produto..."
+      (keyup.enter)="aplicarFiltros()"
+    />
+  </div>
 
-      <div class="tabela product-grid">
-        <div *ngFor="let product of products" class="product-card">
-          <img [src]="product.imageUrl" [alt]="product.name" />
-          <h3>{{ product.name }}</h3>
-          <p>R$ {{ product.price }}</p>
-        </div>
-      </div>
-    </section>
+  <div class="criar-produto">
+    <button (click)="criarProduto()">Criar produto</button>
+  </div>
+</div>
+
+
+<div class="tabela product-grid">
+  <div *ngFor="let product of produtosFiltrados" class="product-card">
+    <img [src]="product.imageUrl" [alt]="product.name" />
+    <h3>{{ product.name }}</h3>
+    <p>R$ {{ product.price }}</p>
   </div>
 </div>
 
