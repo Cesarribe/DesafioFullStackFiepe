@@ -1,41 +1,92 @@
-<div class="container">
-  <div class="topbar">
+<div class="container-padrao">
+  <header class="topbar">
     <h1>Cadastro de Produto</h1>
-  </div>
+  </header>
 
   <div class="main">
     <app-sidebar></app-sidebar>
 
     <section class="content">
-      <form (ngSubmit)="salvarProduto()" class="formulario">
-        <label>
-          Nome:
-          <input type="text" [(ngModel)]="product.name" name="name" required />
-        </label>
+      <form #form="ngForm" (ngSubmit)="salvarProduto()" class="formulario" novalidate>
+        
+        <div class="linha-dupla">
+          <div class="campo">
+            <label for="name">Nome</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              [(ngModel)]="product.name"
+              required
+              minlength="3"
+              #nome="ngModel"
+            />
+            <div class="erro" *ngIf="nome.invalid && nome.touched">
+              O nome é obrigatório e deve ter pelo menos 3 letras.
+            </div>
+          </div>
 
-        <label>
-          Categoria:
-          <input type="text" [(ngModel)]="product.category" name="category" />
-        </label>
+          <div class="campo">
+            <label for="category">Categoria</label>
+            <input
+              id="category"
+              type="text"
+              name="category"
+              [(ngModel)]="product.category"
+            />
+          </div>
+        </div>
 
-        <label>
-          Descrição:
-          <textarea [(ngModel)]="product.description" name="description"></textarea>
-        </label>
+        <div class="campo">
+          <label for="description">Descrição</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="product.description"
+          ></textarea>
+        </div>
 
-        <label>
-          Preço:
-          <input type="number" [(ngModel)]="product.price" name="price" required />
-        </label>
+        <div class="linha-dupla">
+          <div class="campo">
+            <label for="price">Preço</label>
+            <input
+              id="price"
+              type="text"
+              name="price"
+              [(ngModel)]="product.price"
+              required
+              min="0.01"
+              mask="separator.2"
+              thousandSeparator="."
+              decimalMarker=","
+              #preco="ngModel"
+            />
+            <div class="erro" *ngIf="preco.invalid && preco.touched">
+              Informe um preço válido (maior que zero).
+            </div>
+          </div>
 
-        <label>
-          Estoque:
-          <input type="number" [(ngModel)]="product.stock" name="stock" />
-        </label>
+          <div class="campo">
+            <label for="stock">Estoque</label>
+            <input
+              id="stock"
+              type="text"
+              name="stock"
+              [(ngModel)]="product.stock"
+              required
+              min="0"
+              pattern="\\d+"
+              #estoque="ngModel"
+            />
+            <div class="erro" *ngIf="estoque.invalid && estoque.touched">
+              Estoque precisa ser um número inteiro positivo.
+            </div>
+          </div>
+        </div>
 
         <div class="botoes">
           <button type="button" (click)="cancelar()">Cancelar</button>
-          <button type="submit">Cadastrar</button>
+          <button type="submit" [disabled]="form.invalid">Cadastrar</button>
         </div>
       </form>
     </section>

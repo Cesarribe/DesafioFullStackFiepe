@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SidebarComponent } from '../sidebar/sidebar.component'; // ajuste o caminho se necessário
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask'; 
 
 @Component({
   selector: 'app-product-form',
@@ -9,8 +10,10 @@ import { SidebarComponent } from '../sidebar/sidebar.component'; // ajuste o cam
   imports: [
     CommonModule,
     FormsModule,
-    SidebarComponent 
+    SidebarComponent,
+    NgxMaskDirective 
   ],
+  providers: [provideNgxMask()], 
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']
 })
