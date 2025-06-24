@@ -164,4 +164,9 @@ $branco: #ffffff;
   color: red;
   font-size: 0.875rem;
 }
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border: 2px solid #e53935; // vermelho mais vibrante
+  background-color: #fff5f5;
+}
 

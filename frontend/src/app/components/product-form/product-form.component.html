@@ -35,6 +35,7 @@
               type="text"
               name="category"
               [(ngModel)]="product.category"
+              #categoria="ngModel"
             />
           </div>
         </div>
@@ -48,8 +49,9 @@
             maxlength="300"
             #descricao="ngModel"
           ></textarea>
-         <div class="erro" *ngIf="descricao?.errors?.['maxlength'] && descricao.touched">
-        </div>
+          <div class="erro" *ngIf="descricao?.errors?.['maxlength'] && descricao.touched">
+            A descrição pode ter no máximo 300 caracteres.
+          </div>
         </div>
 
         <div class="linha-dupla">
@@ -75,13 +77,12 @@
             <label for="stock">Estoque</label>
             <input
               id="stock"
-              type="text"
+              type="number"
               name="stock"
               [(ngModel)]="product.stock"
               required
               min="0"
               max="999999"
-              pattern="\\d+"
               #estoque="ngModel"
             />
             <div class="erro" *ngIf="estoque.invalid && estoque.touched">
@@ -95,6 +96,27 @@
           <button type="submit" [disabled]="form.invalid">Cadastrar</button>
         </div>
       </form>
+
+      <hr />
+
+      <section class="lista-produtos">
+        <h2>Produtos cadastrados</h2>
+
+        <div *ngIf="produtos.length === 0">
+          Nenhum produto encontrado.
+        </div>
+
+        <ul class="lista">
+          <li *ngFor="let p of produtos">
+            <strong>{{ p.name }}</strong> —
+            {{ p.category || 'Sem categoria' }} —
+            R$ {{ p.price | number:'1.2-2' }} —
+            <span [ngClass]="{ 'esgotado': p.stock === 0 }">
+              {{ p.stock === 0 ? 'Esgotado' : (p.stock + ' un.') }}
+            </span>
+          </li>
+        </ul>
+      </section>
     </section>
   </div>
 </div>
