@@ -19,10 +19,12 @@
               [(ngModel)]="product.name"
               required
               minlength="3"
+              maxlength="100"
+              pattern="^[a-zA-Z0-9\\s\\-_,.]+$"
               #nome="ngModel"
             />
             <div class="erro" *ngIf="nome.invalid && nome.touched">
-              O nome é obrigatório e deve ter pelo menos 3 letras.
+              O nome é obrigatório, entre 3 e 100 caracteres, e só pode conter letras, números, espaços e sinais permitidos (-_,.).
             </div>
           </div>
 
@@ -43,7 +45,11 @@
             id="description"
             name="description"
             [(ngModel)]="product.description"
+            maxlength="300"
+            #descricao="ngModel"
           ></textarea>
+         <div class="erro" *ngIf="descricao?.errors?.['maxlength'] && descricao.touched">
+        </div>
         </div>
 
         <div class="linha-dupla">
@@ -55,14 +61,13 @@
               name="price"
               [(ngModel)]="product.price"
               required
-              min="0.01"
               mask="separator.2"
               thousandSeparator="."
               decimalMarker=","
               #preco="ngModel"
             />
             <div class="erro" *ngIf="preco.invalid && preco.touched">
-              Informe um preço válido (maior que zero).
+              Informe um preço válido entre R$ 0,01 e R$ 1.000.000,00.
             </div>
           </div>
 
@@ -75,11 +80,12 @@
               [(ngModel)]="product.stock"
               required
               min="0"
+              max="999999"
               pattern="\\d+"
               #estoque="ngModel"
             />
             <div class="erro" *ngIf="estoque.invalid && estoque.touched">
-              Estoque precisa ser um número inteiro positivo.
+              Estoque deve ser um número inteiro entre 0 e 999.999.
             </div>
           </div>
         </div>
