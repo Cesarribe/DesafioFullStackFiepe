@@ -1,0 +1,27 @@
+.dashboard {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 32px;
+
+  .card {
+    flex: 1 1 240px;
+    background-color: #ffffff;
+    padding: 24px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-align: center;
+
+    h3 {
+      color: #0D47A1;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #1976D2;
+    }
+  }
+}

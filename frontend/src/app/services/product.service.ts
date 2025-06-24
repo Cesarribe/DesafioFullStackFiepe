@@ -36,6 +36,9 @@ private apiUrl = 'http://localhost:8080/products';
 aplicarDesconto(id: number, percent: number): Observable<Product> {
   return this.http.post<Product>(`${this.apiUrl}/${id}/discount/percent`, { percent });
 }
-
+atualizarEstoque(id: number, novoEstoque: number): Observable<Product> {
+  const patch = [{ op: 'replace', path: '/stock', value: novoEstoque }];
+  return this.http.patch<Product>(`${this.apiUrl}/${id}`, patch);
+}
 }
 

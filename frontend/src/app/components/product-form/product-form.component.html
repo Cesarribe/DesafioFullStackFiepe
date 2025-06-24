@@ -1,136 +1,128 @@
-<div class="container-padrao">
-  <header class="topbar">
-    <h1>Cadastro de Produto</h1>
-  </header>
+<header class="topbar">
+  <h1>Cadastro de Produto</h1>
+</header>
 
-  <div class="main">
-    <app-sidebar></app-sidebar>
-
-    <section class="content">
-      <form #form="ngForm" (ngSubmit)="salvarProduto()" class="formulario" novalidate>
-        
-        <div class="linha-dupla">
-          <div class="campo">
-            <label for="name">Nome</label>
-            <input
-              id="name"
-              type="text"
-              name="name"
-              [(ngModel)]="product.name"
-              required
-              minlength="3"
-              maxlength="100"
-              pattern="^[a-zA-Z0-9\\s\\-_,.]+$"
-              #nome="ngModel"
-            />
-            <div class="erro" *ngIf="nome.invalid && nome.touched">
-              O nome é obrigatório, entre 3 e 100 caracteres, e só pode conter letras, números, espaços e sinais permitidos (-_,.).
-            </div>
-          </div>
-
-          <div class="campo">
-            <label for="category">Categoria</label>
-            <input
-              id="category"
-              type="text"
-              name="category"
-              [(ngModel)]="product.category"
-              #categoria="ngModel"
-            />
-          </div>
-        </div>
-
-        <div class="campo">
-          <label for="description">Descrição</label>
-          <textarea
-            id="description"
-            name="description"
-            [(ngModel)]="product.description"
-            maxlength="300"
-            #descricao="ngModel"
-          ></textarea>
-          <div class="erro" *ngIf="descricao?.errors?.['maxlength'] && descricao.touched">
-            A descrição pode ter no máximo 300 caracteres.
-          </div>
-        </div>
-
-        <div class="linha-dupla">
-          <div class="campo">
-            <label for="price">Preço</label>
-            <input
-              id="price"
-              type="text"
-              name="price"
-              [(ngModel)]="product.price"
-              required
-              mask="separator.2"
-              thousandSeparator="."
-              decimalMarker=","
-              #preco="ngModel"
-            />
-            <div class="erro" *ngIf="preco.invalid && preco.touched">
-              Informe um preço válido entre R$ 0,01 e R$ 1.000.000,00.
-            </div>
-          </div>
-
-          <div class="campo">
-            <label for="stock">Estoque</label>
-            <input
-              id="stock"
-              type="number"
-              name="stock"
-              [(ngModel)]="product.stock"
-              required
-              min="0"
-              max="999999"
-              #estoque="ngModel"
-            />
-            <div class="erro" *ngIf="estoque.invalid && estoque.touched">
-              Estoque deve ser um número inteiro entre 0 e 999.999.
-            </div>
-          </div>
-        </div>
-
-        <div class="botoes">
-          <button type="button" (click)="cancelar()">Cancelar</button>
-          <button type="submit" [disabled]="form.invalid">Cadastrar</button>
-        </div>
-      </form>
-
-      <hr />
-
-      <section class="lista-produtos">
-        <h2>Produtos cadastrados</h2>
-
-        <div *ngIf="produtos.length === 0">
-          Nenhum produto encontrado.
-        </div>
-
-       <ul class="lista">
-  <li *ngFor="let p of produtos" class="item-produto">
-    <div class="info">
-      <strong>{{ p.name }}</strong> —
-      {{ p.category || 'Sem categoria' }} —
-      R$ {{ p.price | number:'1.2-2' }} —
-      <span [ngClass]="{ 'esgotado': p.stock === 0 }">
-        {{ p.stock === 0 ? 'Esgotado' : (p.stock + ' un.') }}
-      </span>
+<form #form="ngForm" (ngSubmit)="salvarProduto()" class="formulario" novalidate>
+  <div class="linha-dupla">
+    <div class="campo">
+      <label for="name">Nome</label>
+      <input
+        id="name"
+        type="text"
+        name="name"
+        [(ngModel)]="product.name"
+        required
+        minlength="3"
+        maxlength="100"
+        pattern="^[a-zA-Z0-9\\s\\-_,.]+$"
+        #nome="ngModel"
+      />
+      <div class="erro" *ngIf="nome.invalid && nome.touched">
+        O nome é obrigatório, entre 3 e 100 caracteres, e só pode conter letras, números, espaços e sinais permitidos (-_,.).
+      </div>
     </div>
-    <div class="acoes">
-      <button (click)="venderProduto(p)" [disabled]="p.stock === 0" title="Vender">
-        <i class="bi bi-currency-dollar"></i>
-      </button>
-      <button (click)="editarProduto(p)" title="Editar">
-        <i class="bi bi-pencil-square"></i>
-      </button>
-      <button (click)="excluirProduto(p)" title="Excluir">
-        <i class="bi bi-trash"></i>
-      </button>
-    </div>
-  </li>
-</ul>
 
-      </section>
-    </section>
+    <div class="campo">
+      <label for="category">Categoria</label>
+      <input
+        id="category"
+        type="text"
+        name="category"
+        [(ngModel)]="product.category"
+        #categoria="ngModel"
+      />
+    </div>
   </div>
-</div>
+
+  <div class="campo">
+    <label for="description">Descrição</label>
+    <textarea
+      id="description"
+      name="description"
+      [(ngModel)]="product.description"
+      maxlength="300"
+      #descricao="ngModel"
+    ></textarea>
+    <div class="erro" *ngIf="descricao?.errors?.['maxlength'] && descricao.touched">
+      A descrição pode ter no máximo 300 caracteres.
+    </div>
+  </div>
+
+  <div class="linha-dupla">
+    <div class="campo">
+      <label for="price">Preço</label>
+      <input
+        id="price"
+        type="text"
+        name="price"
+        [(ngModel)]="product.price"
+        required
+        mask="separator.2"
+        thousandSeparator="."
+        decimalMarker=","
+        #preco="ngModel"
+      />
+      <div class="erro" *ngIf="preco.invalid && preco.touched">
+        Informe um preço válido entre R$ 0,01 e R$ 1.000.000,00.
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="stock">Estoque</label>
+      <input
+        id="stock"
+        type="number"
+        name="stock"
+        [(ngModel)]="product.stock"
+        required
+        min="0"
+        max="999999"
+        #estoque="ngModel"
+      />
+      <div class="erro" *ngIf="estoque.invalid && estoque.touched">
+        Estoque deve ser um número inteiro entre 0 e 999.999.
+      </div>
+    </div>
+  </div>
+
+  <div class="botoes">
+    <button type="button" (click)="cancelar()">Cancelar</button>
+    <button type="submit" [disabled]="form.invalid">
+      {{ product.id ? 'Salvar Alterações' : 'Cadastrar Produto' }}
+    </button>
+  </div>
+</form>
+
+<hr />
+
+<section class="lista-produtos">
+  <h2>Produtos cadastrados</h2>
+
+  <div *ngIf="produtos.length === 0">
+    Nenhum produto encontrado.
+  </div>
+
+  <ul class="lista">
+    <li *ngFor="let p of produtos" class="item-produto">
+      <div class="info">
+        <strong>{{ p.name }}</strong> —
+        {{ p.category || 'Sem categoria' }} —
+        R$ {{ p.price | number:'1.2-2' }} —
+        <span [ngClass]="{ 'esgotado': p.stock === 0 }">
+          {{ p.stock === 0 ? 'Esgotado' : (p.stock + ' un.') }}
+        </span>
+      </div>
+      <div class="acoes">
+        <button (click)="venderProduto(p)" [disabled]="p.stock === 0" title="Vender">
+          <i class="bi bi-currency-dollar"></i>
+        </button>
+        <button (click)="editarProduto(p)" title="Editar">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+        <button (click)="excluirProduto(p)" title="Excluir">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </li>
+  </ul>
+</section>

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpParams } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 
@@ -20,7 +21,10 @@ export class ProductTableComponent implements OnInit {
     estoqueMin: ''
   };
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.filtrar();
@@ -37,38 +41,63 @@ export class ProductTableComponent implements OnInit {
       error: (err) => console.error('Erro ao aplicar filtros:', err)
     });
   }
-  aplicarDesconto(produto: Product): void {
-  const entrada = prompt(`Digite o percentual de desconto para "${produto.name}":`);
-  const percent = Number(entrada);
 
-  if (isNaN(percent) || percent <= 0 || percent > 90) {
-    alert('Digite um número válido entre 1 e 90.');
-    return;
+  aplicarDesconto(produto: Product): void {
+    const entrada = prompt(`Digite o percentual de desconto para "${produto.name}":`);
+    const percent = Number(entrada);
+
+    if (isNaN(percent) || percent <= 0 || percent > 90) {
+      alert('Digite um número válido entre 1 e 90.');
+      return;
+    }
+
+    this.productService.aplicarDesconto(produto.id!, percent).subscribe({
+      next: () => {
+        alert('Desconto aplicado!');
+        this.filtrar();
+      },
+      error: (err) => {
+        console.error('Erro ao aplicar desconto:', err);
+        alert('Erro ao aplicar desconto.');
+      }
+    });
   }
 
-  this.productService.aplicarDesconto(produto.id!, percent).subscribe({
-    next: () => {
-      alert('Desconto aplicado!');
-      this.filtrar(); 
-    },
-    error: (err) => {
-      console.error('Erro ao aplicar desconto:', err);
-      alert('Erro ao aplicar desconto.');
-    }
-  });
-}
-excluirProduto(produto: Product): void {
-  if (!confirm(`Tem certeza que deseja excluir "${produto.name}"?`)) return;
+  excluirProduto(produto: Product): void {
+    if (!confirm(`Tem certeza que deseja excluir "${produto.name}"?`)) return;
 
-  this.productService.excluirProduto(produto.id!).subscribe({
-    next: () => {
-      alert('Produto inativado com sucesso!');
-      this.filtrar(); 
-    },
-    error: (err) => {
-      console.error('Erro ao excluir produto:', err);
-      alert('Erro ao excluir produto.');
+    this.productService.excluirProduto(produto.id!).subscribe({
+      next: () => {
+        alert('Produto inativado com sucesso!');
+        this.filtrar();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir produto:', err);
+        alert('Erro ao excluir produto.');
+      }
+    });
+  }
+
+  editarProduto(produto: Product): void {
+    this.router.navigate(['/cadastro'], {
+      state: { produto }
+    });
+  }
+
+  venderProduto(produto: Product): void {
+    if (produto.stock <= 0) {
+      alert('Estoque esgotado!');
+      return;
     }
-  });
-}
+
+    const novoEstoque = produto.stock - 1;
+
+    this.productService.atualizarEstoque(produto.id!, novoEstoque).subscribe({
+      next: () => this.filtrar(),
+      error: (err) => {
+        console.error('Erro ao vender produto:', err);
+        alert('Erro ao vender produto.');
+      }
+    });
+  }
 }

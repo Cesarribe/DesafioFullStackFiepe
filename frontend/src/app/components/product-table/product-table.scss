@@ -1,0 +1,38 @@
+.lista {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+
+  li {
+    padding: 12px;
+    border: 1px solid #ddd;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .info {
+      font-size: 1rem;
+    }
+
+    .acoes button {
+      margin-left: 8px;
+      padding: 6px 12px;
+      border: none;
+      background-color: #1976d2;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .acoes button:hover {
+      background-color: #145ea8;
+    }
+
+    .acoes button[disabled] {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}

@@ -1,23 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { SidebarComponent } from '../sidebar/sidebar.component'; // ajuste o caminho se necessário
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-product-form',
   standalone: true,
+  selector: 'app-product-form',
   imports: [
     CommonModule,
     FormsModule,
-    HttpClientModule,
-    SidebarComponent,
-    NgxMaskDirective
   ],
-  providers: [provideNgxMask()],
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']
 })
@@ -33,11 +28,27 @@ export class ProductFormComponent implements OnInit {
 
   produtos: Product[] = [];
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ) {}
+ngOnInit(): void {
+  let stateProduto: Product | null = null;
 
-  ngOnInit(): void {
-    this.listarProdutos();
+  try {
+    stateProduto = history.state?.produto;
+  } catch (e) {
+    console.warn('Não foi possível acessar history.state:', e);
   }
+
+  if (stateProduto && stateProduto.id) {
+    this.product = { ...stateProduto };
+  } else {
+    this.resetarFormulario();
+  }
+
+  this.listarProdutos();
+}
 
   listarProdutos(): void {
     this.productService.listarProdutos().subscribe({
@@ -55,8 +66,13 @@ export class ProductFormComponent implements OnInit {
       return;
     }
 
-    const precoString = (this.product.price || '').toString().replace(/\./g, '').replace(',', '.');
-    const preco = parseFloat(precoString);
+   const preco = typeof this.product.price === 'string'
+  ? parseFloat(
+      String(this.product.price)
+        .replace(/\./g, '')
+        .replace(',', '.')
+    )
+  : this.product.price;
 
     if (isNaN(preco) || preco < 0.01 || preco > 1000000) {
       alert('Preço fora do intervalo permitido.');
@@ -83,26 +99,24 @@ export class ProductFormComponent implements OnInit {
       description: descricao,
       price: preco,
       stock: estoque,
-      created_at: new Date().toISOString()
+      created_at: this.product.created_at || new Date().toISOString()
     };
 
     if (this.product.id) {
-      // Atualiza
       this.productService.atualizarProduto({ ...novoProduto, id: this.product.id }).subscribe({
         next: () => {
           alert('Produto atualizado!');
           this.resetarFormulario();
-          this.listarProdutos();
+          this.router.navigate(['/products']);
         },
         error: (err) => console.error('Erro ao atualizar:', err)
       });
     } else {
-      // Cria novo
       this.productService.salvarProduto(novoProduto).subscribe({
         next: () => {
           alert('Produto cadastrado!');
           this.resetarFormulario();
-          this.listarProdutos();
+          this.router.navigate(['/products']);
         },
         error: (err) => {
           alert('Erro ao salvar. Tente novamente.');

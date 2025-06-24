@@ -10,10 +10,16 @@
 
   <ul class="lista">
     <li *ngFor="let p of produtos">
-      <strong>{{ p.name }}</strong> —
-      {{ p.category }} —
-      R$ {{ p.price | number:'1.2-2' }} —
-      {{ p.stock }} un.
+      <div class="info">
+        <strong>{{ p.name }}</strong> — {{ p.category }} —
+        R$ {{ p.price | number:'1.2-2' }} — {{ p.stock }} un.
+      </div>
+
+      <div class="acoes">
+        <button (click)="editarProduto(p)">Editar</button>
+        <button (click)="venderProduto(p)" [disabled]="p.stock === 0">Vender</button>
+        <button (click)="excluirProduto(p)">Excluir</button>
+      </div>
     </li>
   </ul>
 </section>
