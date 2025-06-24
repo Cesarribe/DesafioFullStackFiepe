@@ -169,4 +169,34 @@ textarea.ng-invalid.ng-touched {
   border: 2px solid #e53935; // vermelho mais vibrante
   background-color: #fff5f5;
 }
+.item-produto {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid $cinza-medio;
+
+  .acoes {
+    display: flex;
+    gap: 10px;
+
+    button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: $azul-medio;
+      cursor: pointer;
+
+      &:hover {
+        color: $azul-hover;
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+    }
+  }
+}
+
 

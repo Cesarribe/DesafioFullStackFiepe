@@ -106,16 +106,30 @@
           Nenhum produto encontrado.
         </div>
 
-        <ul class="lista">
-          <li *ngFor="let p of produtos">
-            <strong>{{ p.name }}</strong> —
-            {{ p.category || 'Sem categoria' }} —
-            R$ {{ p.price | number:'1.2-2' }} —
-            <span [ngClass]="{ 'esgotado': p.stock === 0 }">
-              {{ p.stock === 0 ? 'Esgotado' : (p.stock + ' un.') }}
-            </span>
-          </li>
-        </ul>
+       <ul class="lista">
+  <li *ngFor="let p of produtos" class="item-produto">
+    <div class="info">
+      <strong>{{ p.name }}</strong> —
+      {{ p.category || 'Sem categoria' }} —
+      R$ {{ p.price | number:'1.2-2' }} —
+      <span [ngClass]="{ 'esgotado': p.stock === 0 }">
+        {{ p.stock === 0 ? 'Esgotado' : (p.stock + ' un.') }}
+      </span>
+    </div>
+    <div class="acoes">
+      <button (click)="venderProduto(p)" [disabled]="p.stock === 0" title="Vender">
+        <i class="bi bi-currency-dollar"></i>
+      </button>
+      <button (click)="editarProduto(p)" title="Editar">
+        <i class="bi bi-pencil-square"></i>
+      </button>
+      <button (click)="excluirProduto(p)" title="Excluir">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </li>
+</ul>
+
       </section>
     </section>
   </div>

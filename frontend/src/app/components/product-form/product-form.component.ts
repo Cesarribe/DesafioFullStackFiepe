@@ -77,6 +77,7 @@ export class ProductFormComponent implements OnInit {
     }
 
     const novoProduto: Product = {
+      ...this.product,
       name: nome,
       category: this.product.category?.trim(),
       description: descricao,
@@ -85,27 +86,67 @@ export class ProductFormComponent implements OnInit {
       created_at: new Date().toISOString()
     };
 
-    this.productService.salvarProduto(novoProduto).subscribe({
-      next: (res) => {
-        alert('Produto cadastrado!');
-        this.product = {
-          name: '',
-          category: '',
-          description: '',
-          price: 0,
-          stock: 0,
-          created_at: ''
-        };
-        this.listarProdutos();
-      },
-      error: (err) => {
-        alert('Erro ao salvar. Tente novamente.');
-        console.error(err);
-      }
-    });
+    if (this.product.id) {
+      // Atualiza
+      this.productService.atualizarProduto({ ...novoProduto, id: this.product.id }).subscribe({
+        next: () => {
+          alert('Produto atualizado!');
+          this.resetarFormulario();
+          this.listarProdutos();
+        },
+        error: (err) => console.error('Erro ao atualizar:', err)
+      });
+    } else {
+      // Cria novo
+      this.productService.salvarProduto(novoProduto).subscribe({
+        next: () => {
+          alert('Produto cadastrado!');
+          this.resetarFormulario();
+          this.listarProdutos();
+        },
+        error: (err) => {
+          alert('Erro ao salvar. Tente novamente.');
+          console.error(err);
+        }
+      });
+    }
   }
 
   cancelar(): void {
+    this.resetarFormulario();
     console.log('Cadastro cancelado');
+  }
+
+  venderProduto(produto: Product): void {
+    if (produto.stock <= 0) return;
+    const atualizado = { ...produto, stock: produto.stock - 1 };
+    this.productService.atualizarProduto(atualizado).subscribe({
+      next: () => this.listarProdutos(),
+      error: (err) => console.error('Erro ao vender produto:', err)
+    });
+  }
+
+  editarProduto(produto: Product): void {
+    this.product = { ...produto };
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  excluirProduto(produto: Product): void {
+    if (!confirm(`Tem certeza que deseja excluir "${produto.name}"?`)) return;
+    this.productService.excluirProduto(produto.id!).subscribe({
+      next: () => this.listarProdutos(),
+      error: (err) => console.error('Erro ao excluir produto:', err)
+    });
+  }
+
+  private resetarFormulario(): void {
+    this.product = {
+      name: '',
+      category: '',
+      description: '',
+      price: 0,
+      stock: 0,
+      created_at: ''
+    };
   }
 }

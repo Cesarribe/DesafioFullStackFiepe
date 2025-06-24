@@ -1,0 +1,19 @@
+<section class="filtros">
+  <h2>Produtos Cadastrados</h2>
+
+  <form (ngSubmit)="filtrar()" class="form-filtros">
+    <input type="text" [(ngModel)]="filtros.name" name="name" placeholder="Nome" />
+    <input type="text" [(ngModel)]="filtros.category" name="category" placeholder="Categoria" />
+    <input type="number" [(ngModel)]="filtros.estoqueMin" name="estoqueMin" placeholder="Estoque mínimo" />
+    <button type="submit">Filtrar</button>
+  </form>
+
+  <ul class="lista">
+    <li *ngFor="let p of produtos">
+      <strong>{{ p.name }}</strong> —
+      {{ p.category }} —
+      R$ {{ p.price | number:'1.2-2' }} —
+      {{ p.stock }} un.
+    </li>
+  </ul>
+</section>
