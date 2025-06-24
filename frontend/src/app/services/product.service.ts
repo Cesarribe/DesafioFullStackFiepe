@@ -9,7 +9,7 @@ import { HttpParams } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3000/products'; // ou o endpoint da sua API
+private apiUrl = 'http://localhost:8080/products';
 
   constructor(private http: HttpClient) {}
 
@@ -32,6 +32,9 @@ export class ProductService {
   listarComFiltros(filtros: any): Observable<Product[]> {
   const params = new HttpParams({ fromObject: filtros });
   return this.http.get<Product[]>(this.apiUrl, { params });
+}
+aplicarDesconto(id: number, percent: number): Observable<Product> {
+  return this.http.post<Product>(`${this.apiUrl}/${id}/discount/percent`, { percent });
 }
 
 }

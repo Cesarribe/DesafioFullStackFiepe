@@ -9,14 +9,13 @@ import com.cesar.service.ProductService;
 import com.cesar.util.ProductConverter;
 import com.github.fge.jsonpatch.JsonPatch;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
+import java.util.Optional;
 
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -31,9 +30,12 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> listarTodos() {
-        List<Product> produtos = service.listarTodos();
+        List<Product> produtosAtivos = service.listarTodos()
+                .stream()
+                .filter(p -> !p.isDeleted())
+                .toList();
 
-        List<ProductResponseDTO> dtos = produtos.stream()
+        List<ProductResponseDTO> dtos = produtosAtivos.stream()
                 .map(produto -> {
                     ProductDiscount desconto = discountRepository.findByProduct(produto).orElse(null);
                     return ProductConverter.toDTO(produto, desconto);
@@ -74,6 +76,17 @@ public class ProductController {
         return ResponseEntity.ok(service.atualizar(id, atualizacao));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Product> patchProduto(@PathVariable Long id, @RequestBody JsonPatch patch) {
+        try {
+            Product original = service.buscarPorId(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+            Product atualizado = service.aplicarPatch(original, patch);
+            return ResponseEntity.ok(service.atualizar(id, atualizado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(@PathVariable Long id) {
         service.inativar(id);
@@ -82,26 +95,17 @@ public class ProductController {
 
     @PostMapping("/{id}/restore")
     public ResponseEntity<Product> restaurar(@PathVariable Long id) {
-        Product restaurado = service.restaurar(id);
-        return ResponseEntity.ok(restaurado);
+        return ResponseEntity.ok(service.restaurar(id));
     }
 
     @PostMapping("/{id}/discount/percent")
-    public ResponseEntity<Product> aplicarDescontoPercentual(
-            @PathVariable Long id,
-            @RequestParam("percent") double percent
-    ) {
-        Product atualizado = service.aplicarDescontoPercentual(id, percent);
-        return ResponseEntity.ok(atualizado);
+    public ResponseEntity<Product> aplicarDescontoPercentual(@PathVariable Long id, @RequestParam("percent") double percent) {
+        return ResponseEntity.ok(service.aplicarDescontoPercentual(id, percent));
     }
 
     @PostMapping("/{id}/discount/coupon")
-    public ResponseEntity<Product> aplicarCupom(
-            @PathVariable Long id,
-            @RequestParam("code") String codigoCupom
-    ) {
-        Product atualizado = service.aplicarCupom(id, codigoCupom);
-        return ResponseEntity.ok(atualizado);
+    public ResponseEntity<Product> aplicarCupom(@PathVariable Long id, @RequestParam("code") String codigoCupom) {
+        return ResponseEntity.ok(service.aplicarCupom(id, codigoCupom));
     }
 
     @DeleteMapping("/{id}/discount")
@@ -111,7 +115,7 @@ public class ProductController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<Page<ProductResponseDTO>> listarComFiltros(
+    public ResponseEntity<?> listarComFiltros(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String search,
@@ -124,34 +128,15 @@ public class ProductController {
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {
-        Page<Product> produtos = service.listarComFiltros(
+        var pagina = service.listarComFiltros(
                 page, limit, search, minPrice, maxPrice, hasDiscount,
                 includeDeleted, onlyOutOfStock, withCouponApplied,
                 sortBy, sortOrder
-        );
-
-        Page<ProductResponseDTO> dtoPage = produtos.map(produto -> {
-            ProductDiscount desconto = discountRepository.findByProduct(produto).orElse(null);
-            return ProductConverter.toDTO(produto, desconto);
+        ).map(p -> {
+            ProductDiscount desconto = discountRepository.findByProduct(p).orElse(null);
+            return ProductConverter.toDTO(p, desconto);
         });
 
-        return ResponseEntity.ok(dtoPage);
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<Product> patchProduto(
-            @PathVariable Long id,
-            @RequestBody JsonPatch patch
-    ) {
-        try {
-            Product produtoOriginal = service.buscarPorId(id)
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-
-            Product produtoAlterado = service.aplicarPatch(produtoOriginal, patch);
-            return ResponseEntity.ok(service.atualizar(id, produtoAlterado));
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(pagina);
     }
 }

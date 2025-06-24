@@ -37,4 +37,38 @@ export class ProductTableComponent implements OnInit {
       error: (err) => console.error('Erro ao aplicar filtros:', err)
     });
   }
+  aplicarDesconto(produto: Product): void {
+  const entrada = prompt(`Digite o percentual de desconto para "${produto.name}":`);
+  const percent = Number(entrada);
+
+  if (isNaN(percent) || percent <= 0 || percent > 90) {
+    alert('Digite um número válido entre 1 e 90.');
+    return;
+  }
+
+  this.productService.aplicarDesconto(produto.id!, percent).subscribe({
+    next: () => {
+      alert('Desconto aplicado!');
+      this.filtrar(); 
+    },
+    error: (err) => {
+      console.error('Erro ao aplicar desconto:', err);
+      alert('Erro ao aplicar desconto.');
+    }
+  });
+}
+excluirProduto(produto: Product): void {
+  if (!confirm(`Tem certeza que deseja excluir "${produto.name}"?`)) return;
+
+  this.productService.excluirProduto(produto.id!).subscribe({
+    next: () => {
+      alert('Produto inativado com sucesso!');
+      this.filtrar(); 
+    },
+    error: (err) => {
+      console.error('Erro ao excluir produto:', err);
+      alert('Erro ao excluir produto.');
+    }
+  });
+}
 }
