@@ -32,7 +32,6 @@ class ProductServiceTest {
 
     @Test
     void deveAplicarDescontoPercentualComSucesso() {
-        // Arrange
         Product produto = new Product();
         produto.setId(1L);
         produto.setName("Notebook");
@@ -41,10 +40,8 @@ class ProductServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(produto));
         when(discountRepository.existsByProduct(produto)).thenReturn(false);
 
-        // Act
         Product resultado = productService.aplicarDescontoPercentual(1L, 20);
 
-        // Assert
         assertEquals("Notebook", resultado.getName());
         verify(discountRepository).save(any(ProductDiscount.class));
     }
@@ -70,4 +67,5 @@ class ProductServiceTest {
 
         assertEquals("Produto não encontrado.", e.getMessage());
     }
+
 }

@@ -242,5 +242,4 @@ public class ProductService {
             throw new RuntimeException("Erro ao aplicar JSON Patch: " + e.getMessage());
         }
     }
-
 }
