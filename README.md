@@ -5,6 +5,19 @@ seja por percentual ou por cupom. Além das operações básicas de CRUD, a apli
 embarcamento Docker e usando as boas práticas de Clean Code e Design Pattern
 ---
 
+## Índice
+
+1. [Funcionalidades](#funcionalidades)  
+2. [Tecnologias](#tecnologias)  
+3. [Estrutura do Projeto](#estrutura-do-projeto)  
+4. [Como rodar o projeto localmente](#como-rodar-o-projeto-localmente)  
+5. [Arquivo de variáveis de ambiente](#arquivo-de-variáveis-de-ambiente)  
+6. [Executando com Docker](#executando-com-docker)  
+7. [Comandos Docker Úteis](#comandos-docker-úteis)  
+8. [Dockerfiles](#dockerfiles)  
+9. [Testes](#testes)  
+10. [Licença](#licença)  
+
 # Funcionalidades
 
 - CRUD completo de produtos
@@ -126,7 +139,7 @@ Testamos os principais fluxos da aplicação usando **MockMvc** com cobertura de
 - ❌ Atualização parcial via PATCH (em progresso)
 - ✔️ Atualizar produto com ID inválido (404)
 
-# Cobertura Atual
+# TESTES - Cobertura Atual
 
 - **Classes:** 63%
 - **Métodos:** 51%
@@ -155,8 +168,16 @@ bash
 
 # 3. Acesse a API:
 
+mvn clean install
+mvn spring-boot:run
 http://localhost:8080/products
 
+# 4. Para o Front
+
+cd ../FrontEnd
+npm install
+ng serve --open
+Acesse http://localhost:4200
  
  
  # Executando com Docker
@@ -250,6 +271,6 @@ ___
 Todos os dados expostos ao cliente são convertidos usando o ProductConverter, garantindo desacoplamento entre a camada de domínio e a apresentação.
 
 
-# Licensa
+# Licença
 O uso é livre para finalidades academicas.
 
