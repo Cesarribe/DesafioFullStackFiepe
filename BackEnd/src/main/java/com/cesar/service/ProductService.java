@@ -160,6 +160,7 @@ public class ProductService {
         return produto;
     }
 
+    @Transactional
     public void removerDesconto(Long id) {
         Product produto = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado."));

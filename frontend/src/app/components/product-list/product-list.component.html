@@ -1,51 +1,80 @@
-<div class="container-padrao">
-  <header class="topbar">
-    <h1>Produtos</h1>
-  </header>
+<header class="topbar">
+  <h1>Produtos</h1>
+</header>
 
-    <section class="content">
-      <div class="filtros">
-        <div class="filtros-produto">
-          <button>Todos</button>
-          <button>Com desconto</button>
-          <button>Inativos</button>
-        </div>
+<section class="content">
+  <div class="filtros">
+    <div class="filtros-produto">
+      <button (click)="filtros.tipo = 'todos'; aplicarFiltros()">Todos</button>
+      <button (click)="filtros.tipo = 'desconto'; aplicarFiltros()">Com desconto</button>
+      <button (click)="filtros.tipo = 'inativos'; aplicarFiltros()">Inativos</button>
+    </div>
 
-        <div class="filtros-preco">
-          <input
-            type="number"
-            [(ngModel)]="filtros.minPrice"
-            placeholder="Preço mín."
-          />
-          <input
-            type="number"
-            [(ngModel)]="filtros.maxPrice"
-            placeholder="Preço máx."
-          />
-        </div>
+    <div class="filtros-preco">
+      <input
+        type="number"
+        [(ngModel)]="filtros.minPrice"
+        placeholder="Preço mín."
+      />
+      <input
+        type="number"
+        [(ngModel)]="filtros.maxPrice"
+        placeholder="Preço máx."
+      />
+    </div>
 
-        <div class="busca">
-          <div class="busca-input">
-            <input
-              type="text"
-              [(ngModel)]="filtros.search"
-              placeholder="Buscar produto..."
-              (keyup.enter)="aplicarFiltros()"
-            />
-          </div>
-
-          <div class="criar-produto">
-            <button (click)="criarProduto()">Criar produto</button>
-          </div>
-        </div>
-
-        <div class="tabela product-grid">
-          <div *ngFor="let product of produtosFiltrados" class="product-card">
-            <img [src]="product.imageUrl" [alt]="product.name" />
-            <h3>{{ product.name }}</h3>
-            <p>R$ {{ product.price }}</p>
-          </div>
-        </div>
+    <div class="busca">
+      <div class="busca-input">
+        <input
+          type="text"
+          [(ngModel)]="filtros.search"
+          placeholder="Buscar produto..."
+          (keyup.enter)="aplicarFiltros()"
+        />
       </div>
-    </section>
+
+      <div class="criar-produto">
+        <button (click)="criarProduto()">Criar produto</button>
+      </div>
+    </div>
   </div>
+
+<div class="tabela product-grid">
+  <div *ngFor="let product of produtosPaginados" class="product-card">
+    <img [src]="product.imageUrl" [alt]="product.name" />
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.description }}</p>
+
+    <p class="preco">
+      <ng-container *ngIf="product.hasDiscount; else precoNormal">
+  <span class="preco-original">R$ {{ product.price | number:'1.2-2' }}</span>
+  <span class="preco-descontado">R$ {{ product.priceWithDiscount | number:'1.2-2' }}</span>
+  <span class="badge desconto">Promoção</span>
+</ng-container>
+
+      <ng-template #precoNormal>
+        R$ {{ product.price | number:'1.2-2' }}
+      </ng-template>
+    </p>
+
+    <p [ngClass]="{ 'esgotado': product.stock === 0 }">
+      {{ product.stock === 0 ? 'Esgotado' : (product.stock + ' un.') }}
+    </p>
+
+   <button
+  (click)="alternarDesconto(product)"
+  [ngClass]="{ 'ativo': product.hasDiscount }"
+>
+  {{ product.hasDiscount ? 'Remover desconto' : 'Aplicar desconto' }}
+</button>
+
+  </div>
+</div>
+
+
+  <div class="paginacao">
+    <button (click)="mudarPagina(-1)" [disabled]="paginaAtual === 1">Anterior</button>
+    <span>Página {{ paginaAtual }} de {{ totalPaginas() }}</span>
+    <button (click)="mudarPagina(1)" [disabled]="paginaAtual === totalPaginas()">Próxima</button>
+  </div>
+</section>

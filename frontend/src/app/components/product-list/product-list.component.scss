@@ -170,3 +170,56 @@ $branco: #ffffff;
     }
   }
 }
+.preco-original {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 6px;
+  font-size: 0.9rem;
+}
+
+.preco-descontado {
+  color: #2e7d32;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.badge.desconto {
+  background-color: #d32f2f;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.product-card {
+
+  button {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: #eeeeee;
+    border: 1px solid #bbb;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    color: #333;
+
+    &:hover {
+      background-color: #d1ecf1;
+      border-color: #17a2b8;
+      color: #0c5460;
+    }
+
+    &.ativo {
+      background-color: #d32f2f;
+      color: #fff;
+      border-color: #d32f2f;
+
+      &:hover {
+        background-color: #b71c1c;
+      }
+    }
+  }
+}
