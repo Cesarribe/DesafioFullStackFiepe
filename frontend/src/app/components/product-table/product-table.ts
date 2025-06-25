@@ -15,11 +15,7 @@ import { ProductService } from '../../services/product.service';
 })
 export class ProductTableComponent implements OnInit {
   produtos: Product[] = [];
-  filtros: any = {
-    name: '',
-    category: '',
-    estoqueMin: ''
-  };
+  filtros = { name: '', category: '', estoqueMin: '' };
 
   constructor(
     private productService: ProductService,
@@ -35,69 +31,54 @@ export class ProductTableComponent implements OnInit {
     if (this.filtros.name) params.name = this.filtros.name;
     if (this.filtros.category) params.category = this.filtros.category;
     if (this.filtros.estoqueMin) params.estoqueMin = this.filtros.estoqueMin;
-
-    this.productService.listarComFiltros(params).subscribe({
-      next: (res) => (this.produtos = res),
-      error: (err) => console.error('Erro ao aplicar filtros:', err)
+    this.productService.listarProdutos(params).subscribe({
+      next: (products: Product[]) => this.produtos = products,
+      error: (error: any) => console.error('Erro ao filtrar:', error)
     });
   }
 
   aplicarDesconto(produto: Product): void {
-    const entrada = prompt(`Digite o percentual de desconto para "${produto.name}":`);
+    const entrada = prompt(`% de desconto para "${produto.name}":`);
     const percent = Number(entrada);
-
     if (isNaN(percent) || percent <= 0 || percent > 90) {
-      alert('Digite um número válido entre 1 e 90.');
+      alert('Insira valor entre 1 e 90');
       return;
     }
-
-    this.productService.aplicarDesconto(produto.id!, percent).subscribe({
-      next: () => {
-        alert('Desconto aplicado!');
-        this.filtrar();
-      },
-      error: (err) => {
-        console.error('Erro ao aplicar desconto:', err);
-        alert('Erro ao aplicar desconto.');
-      }
+    this.productService.aplicarDescontoPercentual(produto.id!, percent).subscribe({
+      next: () => this.filtrar(),
+      error: (error: any) => console.error('Erro ao aplicar desconto:', error)
     });
   }
 
   excluirProduto(produto: Product): void {
-    if (!confirm(`Tem certeza que deseja excluir "${produto.name}"?`)) return;
-
+    if (!confirm(`Excluir "${produto.name}"?`)) return;
     this.productService.excluirProduto(produto.id!).subscribe({
-      next: () => {
-        alert('Produto inativado com sucesso!');
-        this.filtrar();
-      },
-      error: (err) => {
-        console.error('Erro ao excluir produto:', err);
-        alert('Erro ao excluir produto.');
-      }
+      next: () => this.filtrar(),
+      error: (error: any) => console.error('Erro ao excluir:', error)
     });
   }
 
   editarProduto(produto: Product): void {
-    this.router.navigate(['/cadastro'], {
-      state: { produto }
-    });
+    this.router.navigate(['/cadastro'], { state: { produto } });
   }
 
   venderProduto(produto: Product): void {
     if (produto.stock <= 0) {
-      alert('Estoque esgotado!');
+      alert('Estoque esgotado');
       return;
     }
-
-    const novoEstoque = produto.stock - 1;
-
-    this.productService.atualizarEstoque(produto.id!, novoEstoque).subscribe({
-      next: () => this.filtrar(),
-      error: (err) => {
-        console.error('Erro ao vender produto:', err);
-        alert('Erro ao vender produto.');
-      }
-    });
+    this.productService
+      .atualizarEstoque(produto.id!, produto.stock - 1)
+      .subscribe({
+        next: (updated: Product) => {
+          produto.stock = updated.stock;
+          alert('Venda realizada com sucesso!');
+          this.filtrar();
+        },
+        error: (error: any) => {
+          console.error('Erro ao vender:', error);
+          alert('Não foi possível concluir a venda.');
+        }
+      });
   }
 }

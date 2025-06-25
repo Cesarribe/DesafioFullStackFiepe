@@ -65,11 +65,17 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> patchProduto(@PathVariable Long id, @RequestBody JsonPatch patch) {
+    public ResponseEntity<ProductResponseDTO> patchProduto(@PathVariable Long id, @RequestBody JsonPatch patch) {
         Product original = service.buscarPorIdOuErro(id);
         Product atualizado = service.aplicarPatch(original, patch);
-        return ResponseEntity.ok(service.atualizar(id, atualizado));
+        Product salvo = service.atualizar(id, atualizado);
+
+        ProductDiscount desconto = discountRepository.findByProduct(salvo).orElse(null);
+        ProductResponseDTO dto = ProductConverter.toDTO(salvo, desconto);
+
+        return ResponseEntity.ok(dto);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(@PathVariable Long id) {
