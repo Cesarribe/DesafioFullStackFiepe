@@ -1,5 +1,6 @@
 package com.cesar.service;
 
+import com.cesar.exception.NotFoundException;
 import com.cesar.model.*;
 import com.cesar.repository.CouponRepository;
 import com.cesar.repository.ProductDiscountRepository;
@@ -242,4 +243,9 @@ public class ProductService {
             throw new RuntimeException("Erro ao aplicar JSON Patch: " + e.getMessage());
         }
     }
+    public Product buscarPorIdOuErro(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Produto não encontrado"));
+    }
+
 }

@@ -2,11 +2,13 @@ package com.cesar;
 
 import com.cesar.controller.ProductController;
 import com.cesar.dto.ProductRequestDTO;
+import com.cesar.exception.NotFoundException;
 import com.cesar.model.Product;
 import com.cesar.service.ProductService;
 import com.cesar.repository.ProductDiscountRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -130,6 +133,123 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(1))
                 .andExpect(jsonPath("$.content[0].name").value("Caneca Nerd"));
+    }
+    @Test
+    void deveRetornarProdutoPorIdComSucesso() throws Exception {
+        Long id = 1L;
+
+        Product produto = new Product();
+        produto.setId(id);
+        produto.setName("Mouse Gamer");
+        produto.setDescription("Mouse RGB com 6 botões");
+        produto.setPrice(BigDecimal.valueOf(120));
+        produto.setStock(12);
+
+        // Simula produto encontrado no service
+        when(productService.buscarPorIdOuErro(id)).thenReturn(produto);
+        // Simula ausência de desconto (é necessário?)
+        when(discountRepository.findByProduct(produto)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/products/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Mouse Gamer"))
+                .andExpect(jsonPath("$.price").value(120));
+    }
+    @Test
+    void deveRetornarErroQuandoProdutoNaoEncontrado() throws Exception {
+        Long idInexistente = 999L;
+
+        when(productService.buscarPorIdOuErro(idInexistente))
+                .thenThrow(new NotFoundException("Produto não encontrado"));
+
+        mockMvc.perform(get("/products/{id}", idInexistente))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Produto não encontrado"));
+    }
+    @Test
+    void deveRetornar404NoPatchQuandoProdutoNaoExiste() throws Exception {
+        Long idInexistente = 888L;
+
+        JsonPatch patch = JsonPatch.fromJson(
+                new ObjectMapper().readTree("""
+            [
+              { "op": "replace", "path": "/name", "value": "Novo nome" }
+            ]
+        """)
+        );
+
+        when(productService.buscarPorIdOuErro(idInexistente))
+                .thenThrow(new NotFoundException("Produto não encontrado"));
+
+        mockMvc.perform(patch("/products/{id}", idInexistente)
+                        .contentType("application/json-patch+json")
+                        .content(new ObjectMapper().writeValueAsBytes(patch)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Produto não encontrado"));
+    }
+    @Test
+    void deveInativarProdutoComSucesso() throws Exception {
+        Long id = 5L;
+
+        // Aqui não precisa de when(...), pois o método da service é void
+        mockMvc.perform(delete("/products/{id}", id))
+                .andExpect(status().isNoContent());
+
+        verify(productService).inativar(id);
+    }
+    @Test
+    void deveRestaurarProdutoComSucesso() throws Exception {
+        Long id = 10L;
+
+        Product produtoRestaurado = new Product();
+        produtoRestaurado.setId(id);
+        produtoRestaurado.setName("Caneta Azul");
+
+        when(productService.restaurar(id)).thenReturn(produtoRestaurado);
+
+        mockMvc.perform(post("/products/{id}/restore", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Caneta Azul"));
+    }
+    @Test
+    void deveRetornar404AoRestaurarProdutoInexistente() throws Exception {
+        Long idInexistente = 999L;
+
+        when(productService.restaurar(idInexistente))
+                .thenThrow(new NotFoundException("Produto não encontrado"));
+
+        mockMvc.perform(post("/products/{id}/restore", idInexistente))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Produto não encontrado"));
+    }
+    @Test
+    void deveAplicarCupomComSucesso() throws Exception {
+        Long id = 1L;
+
+        Product produtoComDesconto = new Product();
+        produtoComDesconto.setId(id);
+        produtoComDesconto.setName("Notebook");
+        produtoComDesconto.setPrice(BigDecimal.valueOf(3000));
+
+        when(productService.aplicarCupom(id, "PROMO10")).thenReturn(produtoComDesconto);
+
+        mockMvc.perform(post("/products/{id}/discount/coupon", id)
+                        .param("code", "PROMO10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Notebook"))
+                .andExpect(jsonPath("$.price").value(3000));
+    }
+    @Test
+    void deveRetornar404AoAplicarCupomEmProdutoInexistente() throws Exception {
+        Long idInexistente = 999L;
+
+        when(productService.aplicarCupom(idInexistente, "PROMO10"))
+                .thenThrow(new NotFoundException("Produto não encontrado"));
+
+        mockMvc.perform(post("/products/{id}/discount/coupon", idInexistente)
+                        .param("code", "PROMO10"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Produto não encontrado"));
     }
 
 }

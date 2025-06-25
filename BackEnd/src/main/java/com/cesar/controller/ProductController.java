@@ -29,16 +29,9 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> listarTodos() {
-        List<Product> produtosAtivos = service.listarTodos()
-                .stream()
+        List<ProductResponseDTO> dtos = service.listarTodos().stream()
                 .filter(p -> !p.isDeleted())
-                .toList();
-
-        List<ProductResponseDTO> dtos = produtosAtivos.stream()
-                .map(produto -> {
-                    ProductDiscount desconto = discountRepository.findByProduct(produto).orElse(null);
-                    return ProductConverter.toDTO(produto, desconto);
-                })
+                .map(p -> ProductConverter.toDTO(p, discountRepository.findByProduct(p).orElse(null)))
                 .toList();
 
         return ResponseEntity.ok(dtos);
@@ -46,13 +39,9 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> buscarPorId(@PathVariable Long id) {
-        Product produto = service.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-
+        Product produto = service.buscarPorIdOuErro(id);
         ProductDiscount desconto = discountRepository.findByProduct(produto).orElse(null);
-        ProductResponseDTO dto = ProductConverter.toDTO(produto, desconto);
-
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(ProductConverter.toDTO(produto, desconto));
     }
 
     @PostMapping
@@ -77,13 +66,9 @@ public class ProductController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Product> patchProduto(@PathVariable Long id, @RequestBody JsonPatch patch) {
-        try {
-            Product original = service.buscarPorId(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-            Product atualizado = service.aplicarPatch(original, patch);
-            return ResponseEntity.ok(service.atualizar(id, atualizado));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Product original = service.buscarPorIdOuErro(id);
+        Product atualizado = service.aplicarPatch(original, patch);
+        return ResponseEntity.ok(service.atualizar(id, atualizado));
     }
 
     @DeleteMapping("/{id}")
@@ -138,5 +123,4 @@ public class ProductController {
 
         return ResponseEntity.ok(pagina);
     }
-
 }
